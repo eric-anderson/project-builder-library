@@ -188,7 +188,7 @@ sub pb_get_uri {
 
 my $uri = shift || undef;
 
-pb_log(2,"DEBUG: uri:$uri\n");
+pb_log(2,"DEBUG: uri:" . (defined $uri ? $uri : '') . "\n");
 my ($scheme, $authority, $path, $query, $fragment) =
          $uri =~ m|(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?| if (defined $uri);
 my ($account,$host,$port) = $authority =~ m|(?:([^\@]+)\@)?([^:]+)(:(?:[0-9]+))?| if (defined $authority);
