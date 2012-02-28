@@ -36,6 +36,7 @@ sub postamble {
 	# Grab out any CONFDIR or MANDIR param
 	my $confdir = undef;
 	my $mandir = undef;
+        my $prefix = undef;
 
 	while (my $arg = shift @ARGV) {
 		my ($key, $value) = split /=/, $arg;
@@ -43,9 +44,13 @@ sub postamble {
 			$confdir = $value;
 		} elsif ($key =~ /^MANDIR$/) {
 			$mandir = $value;
-		}
+                } elsif ($key eq 'PREFIX') {
+                        $prefix = $value;
+                }
 	}
 
+        $confdir ||= "$prefix/etc/pb";
+        $mandir ||= "$prefix/share/man";
 	my $etcdir = $confdir || "/usr/local/etc/pb";
 	my $mandir = $mandir || "/usr/local/share/man";
 
