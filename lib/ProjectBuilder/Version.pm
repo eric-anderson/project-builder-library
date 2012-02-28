@@ -18,8 +18,8 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(pb_version_init);
 
-$VERSION = "0.11.3";
-$REVISION = "1307";
+$VERSION = "PBVER";
+$REVISION = "PBREV";
 
 sub pb_version_init {
 

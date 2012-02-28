@@ -38,7 +38,7 @@ our $pbdisplaytype = "text";
 our $pblocale = "C";
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(pb_mkdir_p pb_system pb_rm_rf pb_get_date pb_log pb_log_init pb_get_uri pb_get_content pb_set_content pb_display_file pb_syntax_init pb_syntax pb_temp_init pb_get_arch pb_check_requirements pb_check_req $pbdebug $pbLOG $pbdisplaytype $pblocale);
+our @EXPORT = qw(pb_mkdir_p pb_system pb_rm_rf pb_get_date pb_log pb_log_init pb_get_uri pb_get_content pb_set_content pb_display_file pb_syntax_init pb_syntax pb_temp_init pb_get_arch pb_get_osrelease pb_check_requirements pb_check_req $pbdebug $pbLOG $pbdisplaytype $pblocale);
 ($VERSION,$REVISION) = pb_version_init();
 
 =pod
@@ -49,7 +49,7 @@ ProjectBuilder::Base, part of the project-builder.org - module dealing with gene
 
 =head1 DESCRIPTION
 
-This modules provides generic functions suitable for perl project development 
+This module provides generic functions suitable for perl project development 
 
 =head1 SYNOPSIS
 
@@ -383,6 +383,21 @@ if (not defined $ENV{'TMPDIR'}) {
 $ENV{'PBTMP'} = tempdir( "pb.XXXXXXXXXX", DIR => $ENV{'TMPDIR'}, CLEANUP => 1 );
 }
 
+=item B<pb_get_osrelease>
+
+This function returns the release of our operating system
+
+=cut
+
+sub pb_get_osrelease {
+
+# On linux can also use /proc/sys/kernel/osrelease
+my $rel = `uname -r`;
+chomp($rel);
+return($rel);
+}
+
+
 =item B<pb_get_arch>
 
 This function returns the architecture of our local environment and
@@ -466,8 +481,8 @@ if (not $found) {
 	}
 } else {
 	pb_log(2,"OK\n");
-	return($found);
 }
+return($found);
 }
 
 =back 
