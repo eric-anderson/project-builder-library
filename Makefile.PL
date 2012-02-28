@@ -5,9 +5,9 @@ use strict;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-	NAME         => 'ProjectBuilder',
-	DISTNAME     => 'ProjectBuilder',
-	VERSION      => '0.11.3',
+	NAME         => 'PBPKG',
+	DISTNAME     => 'PBPKG',
+	VERSION      => 'PBVER',
 	INST_SCRIPT  => 'blib/bin',
 	INSTALLDIRS  => 'perl',
 	PREREQ_PM    => {

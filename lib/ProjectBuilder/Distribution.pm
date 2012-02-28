@@ -559,6 +559,7 @@ if ($nb eq 1) {
 =item B<pb_distro_get_context>
 
 This function gets the OS context passed as parameter and return the corresponding distribution hash
+If passed undef or "" then auto-detects
 
 =cut
 
@@ -568,7 +569,7 @@ sub pb_distro_get_context {
 my $os = shift;
 my $pbos;
 
-if (defined $os) {
+if ((defined $os) && ($os ne "")) {
 	my ($name,$ver,$darch) = split(/-/,$os);
 	pb_log(0,"Bad format for $os") if ((not defined $name) || (not defined $ver) || (not defined $darch)) ;
 	chomp($darch);

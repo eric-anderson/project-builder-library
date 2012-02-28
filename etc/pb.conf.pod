@@ -11,7 +11,7 @@ In order to work correctly, it relies on a certain number of configuration files
 
 =head1 SYNOPSIS
 
-Those files have the same format, which is near from a a perl hash structure:
+Those files have the same format, which is near from a perl hash structure:
 keyword key = value1[,value2,...]
 
 The key could be also default, in which case it will be used as a default value if no more precise content is given for the key.
@@ -21,6 +21,62 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 =head1 OPTIONS
 
 =over 4
+
+=item B<checkexclude>
+
+ Nature: Optional
+ Key: package (as provided in defpkgdir or extpkgdir)
+ Value: coma separated list of OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch) that are excluded from the checkssh command (no build made for them). The OS name is generaly used here.
+ Conffile: project
+ Example: checkexclude pkg1 = centos,lsb,solaris
+
+=item B<cpandir>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause directory to upload new modules
+ Conffile: pb
+ Example: cpandir default = incoming
+
+=item B<cpanpasswd>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause user's password
+ Conffile: home
+ Example: cpanpasswd default = mycomplicatedpwd
+
+=item B<cpanpause>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause site to upload new modules
+ Conffile: pb
+ Example: cpanpause default = pause.perl.org
+
+=item B<cpansubdir>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause subdirectory in the user's area to upload into
+ Conffile: pb
+ Example: cpansubdir default = mydir
+
+=item B<cpanurl>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause URL to activate the upload mecanism
+ Conffile: pb
+ Example: cpanurl default = http://pause.perl.org/pause/authenquery
+
+=item B<cpanuser>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: CPAN Pause user
+ Conffile: home
+ Example: cpanuser default = XXX
 
 =item B<defpkgdir>
 
@@ -53,6 +109,102 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
  Value: coma separated list of files that will be filtered using the macro system from pb, during the creation of the compressed source tar files for this package. Their path is relative to the directory containing the package.
  Conffile: project
  Example: filteredfiles mindi = rootfs/sbin/init,mindi,install.sh,doc/mindi.8
+
+=item B<logcmd>
+
+ Nature: Mandatory
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: internal (the application then handles the logging of what it finds useful) or the name of an application to launch to log context (e.g. sos, cfg2html, ...).
+ Conffile: pb
+ Example: logcmd pbmkbm = sos
+
+=item B<logcmds>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: In case the B<logcmd> command is internal, a coma separated list of the commands whose trace execution is to be captured in order to log context.
+ Conffile: pb
+ Example: logcmds pbmkbm = mount,lsmod,esxcfg-module -l,df -T
+
+=item B<logfiles>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: In case the B<logcmd> command is internal, a coma separated list of the files to capture in order to log context.
+ Conffile: pb
+ Example: logfiles pbmkbm = /etc/raidtab,/proc/cmdline,/proc/swaps
+
+=item B<logopt>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: In case the B<logcmd> command is not internal, the options of the B<logcmd> application to launch to log context
+ Conffile: pb
+ Example: logcmd pbmkbm = --all
+
+=item B<mkbmbootcmds>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: coma separated list of commands to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target). Their actual path is deduced from the PATH variable.
+ Conffile: pb
+ Example: mkbmbootcmds linux = perl,awk,gawk,dd,grep,uname
+
+=item B<mkbmbootdirs>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: coma separated list of directories to be copied from the original OS to the target boot media tree (works recursively on the target).
+ Conffile: pb
+ Example: mkbmbootdirs linux = /etc/ssh,/etc/udev,/etc/mdadm
+
+=item B<mkbmbootfiles>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: coma separated list of files to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target).
+ Conffile: pb
+ Example: mkbmbootfiles linux = /etc/mdadm.conf,/etc/raidtab,/etc/modprobe.conf
+
+=item B<mkbmkerneldir>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: path of the directory containing your kernel.
+ Conffile: pb
+ Example: mkbmkerneldir linux = /boot
+
+=item B<mkbmkernelfile>
+
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: full path of the your kernel.
+ Conffile: pb
+ Example: mkbmkernelfile linux = /boot/vmlinuz-specific
+
+=item B<mkbmkernelnamere>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: Perl Regular Expression allowing to find OS kernel names in the B<kerneldir> directory.
+ Conffile: pb
+ Example: mkbmkerneldir linux = ^linu|^vmlinu|^xen
+
+=item B<mkbmpath>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: path of the temporary directory into which the boot media is created.
+ Conffile: pb
+ Example: mkbmpath default = /var/cache/pbmkbm
+
+=item B<mkbmtargetdirs>
+
+ Nature: Mandatory
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: coma separated list of empty directory paths to be created on the target boot media.
+ Conffile: pb
+ Example: mkbmtargetdirs linux = /tmp,/dev
 
 =item B<namingtype>
 
@@ -141,6 +293,22 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
  Value: true|false. True means that this OS has no need to keep the version
  Conffile: pb
  Example: osnover gentoo = true
+
+=item B<ospatchcmd>
+
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
+ Value: package patch command. For RPM is implicit.
+ Conffile: pb
+ Example: ospatchcmd deb = /usr/bin/patch
+
+=item B<ospatchopt>
+
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
+ Value: package patch options.
+ Conffile: pb
+ Example: ospatchcmd deb = -s -p1
 
 =item B<ospathcmd-*>
 
