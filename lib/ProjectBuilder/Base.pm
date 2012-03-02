@@ -13,6 +13,8 @@ package ProjectBuilder::Base;
 
 use strict;
 use lib qw (lib);
+use Carp 'cluck';
+use Cwd;
 use File::Path;
 use File::Temp qw(tempdir);
 use Data::Dumper;
@@ -158,19 +160,24 @@ if ((defined $verbose) and ($verbose eq "mayfail")) {
 	pb_log(0,"OK\n") if ($res == 0);
 	return($res) 
 	}
-if ($res == -1) {
-	pb_log(0,"failed to execute ($cmd): $!\n") if ((! defined $verbose) || ($verbose ne "quiet"));
-	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet")));
-} elsif ($res & 127) {
-	pb_log(0, "child ($cmd) died with signal ".($? & 127).", ".($? & 128) ? 'with' : 'without'." coredump\n") if ((! defined $verbose) || ($verbose ne "quiet"));
-	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet")));
-} elsif ($res == 0) {
+my $cwd = getcwd;
+my $error;
+$error = "child ($cmd) cwd=$cwd exited with value ".($res >> 8)."\n" if $res != 0;
+$error = "failed to execute ($cmd) in $cwd: $!\n" if $res == -1;
+$error = "child ($cmd) died with signal ".($res & 127).", ".($res & 128) ? 'with' : 'without'." coredump\n" if $res & 127;
+
+if (defined $error) {
+	pb_log(0, $error) if ((! defined $verbose) || ($verbose ne "quiet")) || $Global::pb_stop_on_error;
+	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet") || $Global::pb_stop_on_error));
+        if ($Global::pb_stop_on_error) {
+                cluck "error running command ($cmd) with cwd=$cwd";
+                exit(1);
+        }
+} else {
 	pb_log(0,"OK\n") if ((! defined $verbose) || ($verbose ne "quiet"));
 	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((defined $verbose) and (-f "$ENV{'PBTMP'}/system.$$.log") and ($verbose ne "quiet"));
-} else {
-	pb_log(0, "child ($cmd) exited with value ".($? >> 8)."\n") if ((! defined $verbose) || ($verbose ne "quiet"));
-	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet")));
 }
+
 return($res);
 }
 

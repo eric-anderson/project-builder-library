@@ -307,10 +307,9 @@ return if (not defined $pbos->{'install'});
 $deps = pb_distro_getdeps($f, $pbos) if (not defined $deps);
 pb_log(2,"deps: $deps\n");
 return if ((not defined $deps) || ($deps =~ /^\s*$/));
-if ($deps !~ /^[ 	]*$/) {
-	# This may not be // proof. We should test for availability of repo and sleep if not
-	pb_system("$pbos->{'install'} $deps","Installing dependencies ($deps)");
-	}
+# This may not be // proof. We should test for availability of repo and sleep if not
+my $cmd = "$pbos->{'install'} $deps";
+pb_system($cmd, "Installing dependencies ($cmd)");
 }
 
 =item B<pb_distro_getdeps>
@@ -393,7 +392,8 @@ my $deps = shift || undef;
 return("") if ((not defined $deps) || ($deps =~ /^\s*$/));
 my $deps2 = "";
 # Avoid to install what is already there
-foreach my $p (split(/ /,$deps)) {
+foreach my $p (split(/\s+/,$deps)) {
+        next if $p =~ /^\s*$/o;
 	if ($pbos->{'type'} eq  "rpm") {
 		my $res = pb_system("rpm -q --whatprovides --quiet $p","","quiet");
 		next if ($res eq 0);

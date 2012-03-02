@@ -54,16 +54,16 @@ sub postamble {
 	my $etcdir = $confdir || "/usr/local/etc/pb";
 	my $mandir = $mandir || "/usr/local/share/man";
 
-	# Use that conf dir info to modify Distribution.pm
-	system("perl -pi -e \"s~CCCC~$etcdir~\" lib/ProjectBuilder/Distribution.pm");
-
-	$text .= "install ::\n";
-	$text .= "\t".'mkdir -p $(DESTDIR)'."$etcdir\n";
-	$text .= "\t".'chmod 755 $(DESTDIR)'."$etcdir\n";
-	$text .= "\t".'cp etc/pb.conf $(DESTDIR)'."$etcdir\n";
-
+        my $text = <<"EOF";
+install ::
+	mkdir -p \$(DESTDIR)$etcdir
+	chmod 755 \$(DESTDIR)$etcdir
+	cp etc/pb.conf \$(DESTDIR)$etcdir
 	# Produce the man page for pb.conf
-	$text .= "\t".'mkdir -p $(DESTDIR)'."$mandir/man5\n";
-	$text .= "\t".'pod2man --section=5 etc/pb.conf.pod > $(DESTDIR)'."$mandir/man5/pb.conf.5\n";
+	mkdir -p \$(DESTDIR)$mandir/man5
+	pod2man --section=5 etc/pb.conf.pod > \$(DESTDIR)$mandir/man5/pb.conf.5
+	perl -pi -e \"s~CCCC~$etcdir~\" \$(DESTINSTALLPRIVLIB)/ProjectBuilder/Distribution.pm
+EOF
+
 	return($text);
 }
