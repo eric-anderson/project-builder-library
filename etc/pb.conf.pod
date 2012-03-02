@@ -732,9 +732,9 @@ Not used yet.
 
 =item B<vedebtype>
 
- Nature: Mandatory
+ Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: debootstrap (no other tool to create deb distro based chroot)
+ Value: debootstrap (no other tool to create deb distro based chroot, so this is the default)
  Conffile: ve
  Example: vedebtype default = debootstrap
 

@@ -246,7 +246,7 @@ if (not defined $ENV{'PBDEFDIR'}) {
 	}
 }
 # Expand potential env variable in it
-eval { $ENV{'PBDEFDIR'} =~ s/(\$ENV.+\})/$1/eeg };
+$ENV{PBDEFDIR} = pb_path_expand($ENV{PBDEFDIR});
 
 pb_log(2,"PBDEFDIR: $ENV{'PBDEFDIR'}\n");
 

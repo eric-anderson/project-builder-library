@@ -40,7 +40,7 @@ our $pbdisplaytype = "text";
 our $pblocale = "C";
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(pb_mkdir_p pb_system pb_rm_rf pb_get_date pb_log pb_log_init pb_get_uri pb_get_content pb_set_content pb_display_file pb_syntax_init pb_syntax pb_temp_init pb_get_arch pb_get_osrelease pb_check_requirements pb_check_req $pbdebug $pbLOG $pbdisplaytype $pblocale);
+our @EXPORT = qw(pb_mkdir_p pb_system pb_rm_rf pb_get_date pb_log pb_log_init pb_get_uri pb_get_content pb_set_content pb_display_file pb_syntax_init pb_syntax pb_temp_init pb_get_arch pb_get_osrelease pb_check_requirements pb_check_req pb_path_expand $pbdebug $pbLOG $pbdisplaytype $pblocale);
 ($VERSION,$REVISION) = pb_version_init();
 
 =pod
@@ -152,6 +152,8 @@ pb_log(0,"$cmt... ") if ((! defined $verbose) || ($verbose ne "quiet"));
 pb_log(1,"Executing $cmd\n");
 unlink("$ENV{'PBTMP'}/system.$$.log") if (-f "$ENV{'PBTMP'}/system.$$.log");
 $redir = "2>> $ENV{'PBTMP'}/system.$$.log 1>> $ENV{'PBTMP'}/system.$$.log" if ((! defined $verbose) || ($verbose ne "noredir"));
+print "Executing $cmd\n" if $pbdebug < 1 && $cmd =~ /^\s*\S*sudo/o;
+
 system("$cmd $redir");
 my $res = $?;
 # Exit now if the command may fail
@@ -493,6 +495,24 @@ return($found);
 }
 
 =back 
+
+=item B<pb_path_expand>
+
+Expand out a path by environment variables as ($ENV{XXX}) and ~
+
+=cut
+
+# TODO-reviewer: should we be doing this path expansion generically for variables?
+sub pb_path_expand {
+
+my $path = shift;
+
+eval { $path =~ s/(\$ENV.+\})/$1/eeg; };
+$path =~ s/^\~/$ENV{HOME}/;
+
+return($path);
+}
+
 
 =head1 WEB SITES
 

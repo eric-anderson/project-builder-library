@@ -8,6 +8,7 @@
 package ProjectBuilder::VE;
 
 use strict;
+use Carp 'confess';
 use Data::Dumper;
 use English;
 use ProjectBuilder::Version;
@@ -71,6 +72,8 @@ my $pbos = pb_distro_get_context($v);
 my ($ptr,$vepath) = pb_conf_get("vetype","vepath");
 my $vetype = $ptr->{$ENV{'PBPROJ'}};
 
+confess "No vetype defined for $ENV{PBPROJ}" unless defined $vetype;
+pb_log(1, "Using ve type $vetype for $ENV{PBPROJ}\n");
 if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 
 	# We need to avoid umask propagation to the VE
@@ -80,15 +83,18 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 	my ($rbsb4pi,$rbspi,$vesnap,$oscodename,$osmindep,$verebuild,$rbsmirrorsrv) = pb_conf_get_if("rbsb4pi","rbspi","vesnap","oscodename","osmindep","verebuild","rbsmirrorsrv");
 
 	# Architecture consistency
-	my $arch = pb_get_arch();
-	if ($arch ne $pbos->{'arch'}) {
-		die "Unable to launch a VE of architecture $pbos->{'arch'} on a $arch platform" if (($pbos->{'arch'} eq "x86_64") && ($arch =~ /i?86/));
+	my $host_arch = pb_get_arch();
+        pb_log(1, "    Host arch = $host_arch // Target arch = $pbos->{arch}\n");
+	if ($host_arch ne $pbos->{'arch'}) {
+		die "Unable to launch a VE of architecture $pbos->{'arch'} on a $host_arch platform"
+                        unless $host_arch eq 'x86_64' && $pbos->{arch} =~ /i?[3456]86/o;
 	}
 
 	# If we are already root (from pbmkbm e.g.) don't use sudo, just call the command
 	my $sudocmd="";
 	$sudocmd ="sudo " if ($EFFECTIVE_USER_ID != 0);
 
+        my $root = pb_path_expand($vepath->{$ENV{PBPROJ}});
 	if (((defined $verebuild) && ($verebuild->{$ENV{'PBPROJ'}} =~ /true/i)) || ($pbforce == 1)) {
 		my ($verpmtype,$vedebtype) = pb_conf_get("verpmtype","vedebtype");
 		my ($rbsopt1) = pb_conf_get_if("rbsopt");
@@ -143,7 +149,7 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 				my ($rbsconf) = pb_conf_get("rbsconf");
 	
 				my $command = pb_check_req("rinse",0);
-				pb_system("$sudocmd $command --directory \"$vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}\" --arch \"$pbos->{'arch'}\" --distribution \"$pbos->{'name'}-$pbos->{'version'}\" --config \"$rbsconf->{$ENV{'PBPROJ'}}\" $b4post $postinstall $rbsopt $addpkgs $rinseverb","Creating the rinse VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
+				pb_system("$sudocmd $command --directory \"$root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}\" --arch \"$pbos->{'arch'}\" --distribution \"$pbos->{'name'}-$pbos->{'version'}\" --config \"$rbsconf->{$ENV{'PBPROJ'}}\" $b4post $postinstall $rbsopt $addpkgs $rinseverb","Creating the rinse VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
 			} elsif ($verpmstyle eq "rpmbootstrap") {
 				my $rbsverb = "";
 				foreach my $i (1..$pbdebug) {
@@ -162,6 +168,9 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 			} elsif ($verpmstyle eq "mock") {
 				my ($rbsconf) = pb_conf_get("rbsconf");
 				my $command = pb_check_req("mock",0);
+                                # TODO-reviewer: if we care about quoting some things, then we
+                                # probably should just move to using [qw/thing thing thing/]
+                                # variant of specifying the parameters and require it in general.
 				pb_system("$sudocmd $command --init --resultdir=\"/tmp\" --configdir=\"$rbsconf->{$ENV{'PBPROJ'}}\" -r $v $rbsopt","Creating the mock VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})");
 				# Once setup we need to install some packages, the pb account, ...
 				pb_system("$sudocmd $command --install --configdir=\"$rbsconf->{$ENV{'PBPROJ'}}\" -r $v su","Configuring the mock VE");
@@ -170,6 +179,9 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 			}
 		} elsif ($pbos->{'type'} eq "deb") {
 			my $vedebstyle = $vedebtype->{$ENV{'PBPROJ'}};
+                        $vedebstyle = 'debootstrap' unless defined $vedebstyle;
+                        die "No defined debian type for $ENV{PBPROJ}"
+                               unless defined $vedebstyle;
 		
 			my $codename = pb_distro_get_param($pbos,$oscodename);
 			my $postparam = "";
@@ -204,11 +216,11 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 		
 				# Some perl modules are in Universe on Ubuntu
 				$rbsopt .= " --components=main,universe" if ($pbos->{'name'} eq "ubuntu");
-		
-				pb_system("$sudocmd /usr/sbin/debootstrap $dbsverb $rbsopt --arch=$debarch $addpkgs $codename \"$vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}\" $debmir","Creating the debootstrap VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
+                                pb_system("$sudocmd mkdir -p $root/$pbos->{name}/$pbos->{version}/$pbos->{arch}", 'create root ve path');
+				pb_system("$sudocmd /usr/sbin/debootstrap $dbsverb $rbsopt --arch=$debarch $addpkgs $codename \"$root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}\" $debmir","Creating the debootstrap VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
 				# debootstrap doesn't create an /etc/hosts file
-				if (! -f "$vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}/etc/hosts" ) {
-					pb_system("$sudocmd cp /etc/hosts $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}/etc/hosts");
+				if (! -f "$root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}/etc/hosts" ) {
+					pb_system("$sudocmd cp /etc/hosts $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}/etc/hosts");
 				}
 			} else {
 				die "Unknown vedebtype type $vedebstyle. Report to dev team";
@@ -221,16 +233,17 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 	}
 	
 	# Fix modes to allow access to the VE for pb user
-	pb_system("$sudocmd chmod 755 $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'} $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'} $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}","Fixing permissions");
+        my $cmd = "$sudocmd chmod 755 $root/$pbos->{'name'} $root/$pbos->{'name'}/$pbos->{'version'} $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}";
+	pb_system($cmd, "Fixing permissions");
 
 	# Test if an existing snapshot exists and use it if appropriate
 	# And also use it of no local extracted VE is present
-	if ((-f "$vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz") &&
+	if ((-f "$root/$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz") &&
 	(((defined $vesnap->{$v}) && ($vesnap->{$v} =~ /true/i)) ||
 		((defined $vesnap->{$ENV{'PBPROJ'}}) && ($vesnap->{$ENV{'PBPROJ'}} =~ /true/i)) ||
 		($pbsnap eq 1) ||
-		(! -d "$vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}"))) {
-			pb_system("$sudocmd rm -rf $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} ; $sudocmd mkdir -p $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} ; $sudocmd tar xz  -C $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} -f $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz","Extracting snapshot of $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz under $vepath->{$ENV{'PBPROJ'}}/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}");
+		(! -d "$root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}"))) {
+			pb_system("$sudocmd rm -rf $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} ; $sudocmd mkdir -p $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} ; $sudocmd tar xz  -C $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'} -f $root/$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz","Extracting snapshot of $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}.tar.gz under $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}");
 	}
 	# Nothing more to do for VE. No real launch
 } else {
