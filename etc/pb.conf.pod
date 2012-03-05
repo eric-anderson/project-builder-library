@@ -26,7 +26,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: package (as provided in defpkgdir or extpkgdir)
- Value: coma separated list of OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch) that are excluded from the checkssh command (no build made for them). The OS name is generaly used here.
+ Value: comma separated list of OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch) that are excluded from the checkssh command (no build made for them). The OS name is generaly used here.
  Conffile: project
  Example: checkexclude pkg1 = centos,lsb,solaris
 
@@ -82,7 +82,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Mandatory
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: coma separated list of packages built by default in this project. When not using any package name as a parameter to pb commands, this list will be used.
+ Value: comma separated list of packages built by default in this project. When not using any package name as a parameter to pb commands, this list will be used.
  Conffile: project
  Example: defpkgdir mondorescue = mondo,mindi NB: a default value is not really meaningful.
 
@@ -98,7 +98,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: coma separated list of packages built in addition in this project. When using the all package name as a parameter to pb commands, this list will be used, in addition to the defpkgdir list.
+ Value: comma separated list of packages built in addition in this project. When using the all package name as a parameter to pb commands, this list will be used, in addition to the defpkgdir list.
  Conffile: project
  Example: extpkgdir mondorescue = mondo-doc,mindi-mindibusybox
 
@@ -106,9 +106,25 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: package (as provided in defpkgdir or extpkgdir)
- Value: coma separated list of files that will be filtered using the macro system from pb, during the creation of the compressed source tar files for this package. Their path is relative to the directory containing the package.
+ Value: comma separated list of files that will be filtered using the macro system from pb, during the creation of the compressed source tar files for this package. Their path is relative to the directory containing the package.
  Conffile: project
  Example: filteredfiles mindi = rootfs/sbin/init,mindi,install.sh,doc/mindi.8
+
+=item B<ftp_proxy>
+
+Nature: Optional
+Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+Value: string indicating the proxy to use
+Conffile: TODO-reviewer: ?
+Example: ftp_proxy default = http://example.com:3128/
+
+=item B<http_proxy>
+
+Nature: Optional
+Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+Value: string indicating the proxy to use
+Conffile: TODO-reviewer: ?
+Example: http_proxy default = http://example.com:3128/
 
 =item B<logcmd>
 
@@ -122,7 +138,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: In case the B<logcmd> command is internal, a coma separated list of the commands whose trace execution is to be captured in order to log context.
+ Value: In case the B<logcmd> command is internal, a comma separated list of the commands whose trace execution is to be captured in order to log context.
  Conffile: pb
  Example: logcmds pbmkbm = mount,lsmod,esxcfg-module -l,df -T
 
@@ -130,7 +146,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: In case the B<logcmd> command is internal, a coma separated list of the files to capture in order to log context.
+ Value: In case the B<logcmd> command is internal, a comma separated list of the files to capture in order to log context.
  Conffile: pb
  Example: logfiles pbmkbm = /etc/raidtab,/proc/cmdline,/proc/swaps
 
@@ -146,7 +162,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Mandatory
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
- Value: coma separated list of commands to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target). Their actual path is deduced from the PATH variable.
+ Value: comma separated list of commands to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target). Their actual path is deduced from the PATH variable.
  Conffile: pb
  Example: mkbmbootcmds linux = perl,awk,gawk,dd,grep,uname
 
@@ -154,7 +170,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Mandatory
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
- Value: coma separated list of directories to be copied from the original OS to the target boot media tree (works recursively on the target).
+ Value: comma separated list of directories to be copied from the original OS to the target boot media tree (works recursively on the target).
  Conffile: pb
  Example: mkbmbootdirs linux = /etc/ssh,/etc/udev,/etc/mdadm
 
@@ -162,7 +178,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Mandatory
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
- Value: coma separated list of files to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target).
+ Value: comma separated list of files to be copied from the original OS to the target boot media tree (works recursively for directory creation on the target).
  Conffile: pb
  Example: mkbmbootfiles linux = /etc/mdadm.conf,/etc/raidtab,/etc/modprobe.conf
 
@@ -202,7 +218,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Mandatory
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
- Value: coma separated list of empty directory paths to be created on the target boot media.
+ Value: comma separated list of empty directory paths to be created on the target boot media.
  Conffile: pb
  Example: mkbmtargetdirs linux = /tmp,/dev
 
@@ -218,7 +234,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). In that case, should be an OS name.
- Value: coma separated list of distributions which use the same file name in /etc for different distributions (ex: /etc/redhat-release for redhat, rhel, mandriva,...). Cf: B<osrelambfile>
+ Value: comma separated list of distributions which use the same file name in /etc for different distributions (ex: /etc/redhat-release for redhat, rhel, mandriva,...). Cf: B<osrelambfile>
  Conffile: pb
  Example: osambiguous debian = debian,ubuntu
 
@@ -282,7 +298,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). NB: a default value is highly interesting here.
- Value: coma separated list of packages needed before setupvm|ve can be run. Install them with your distribution in VM or automatically in VE when possible.
+ Value: comma separated list of packages needed before setupvm|ve can be run. Install them with your distribution in VM or automatically in VE when possible.
  Conffile: pb
  Example: osmindep default = perl,sudo,wget,tar,make,gzip
 
@@ -322,7 +338,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
- Value: coma separated list of perl modules needed by pb and not provided in a package format for the relative OS, and that will be installed from CPAN in your VM/VE.
+ Value: comma separated list of perl modules needed by pb and not provided in a package format for the relative OS, and that will be installed from CPAN in your VM/VE.
  Conffile: pb
  Example: osperldep rhel-5 = Module-Build,File-MimeInfo,File-BaseDir,Mail-Sendmail
 
@@ -338,7 +354,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional (Mandatory if pbinstalltype is pkg)
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
- Value: coma separated list of packages that have to be installed in order for pb to be operational in the VE|VM
+ Value: comma separated list of packages that have to be installed in order for pb to be operational in the VE|VM
  Conffile: pb
  Example: ospkg rhel-5 = project-builder
 
@@ -346,7 +362,7 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
  Nature: Optional
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
- Value: coma separated list of packages that are needed by pb and should be installed automatically in the VM/VE during the setupvm|ve phasis by pb.
+ Value: comma separated list of packages that are needed by pb and should be installed automatically in the VM/VE during the setupvm|ve phasis by pb.
  Conffile: pb
  Example: ospkgdep rhel-5 = wget,make,ntp,patch,perl-DateManip
 
@@ -387,7 +403,7 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
 
  Nature: Optional (Mandatory if pbinstalltype is pkg)
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
- Value: coma separated list of packages or repo file to be added to the VE|VM to support package installation of pb
+ Value: comma separated list of packages or repo file to be added to the VE|VM to support package installation of pb
  Conffile: pb
  Example: osrepo rpm = ftp://ftp.project-builder.org/$ddir/$dver/pb.repo
 
@@ -590,6 +606,14 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
  Conffile: ve
  Example: rbsb4pi centos = /home/rinse/bin/before-post-install.sh
 
+=item B<rbsmirrorsrv>
+
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: URL for the mirror server for setting up a virtual environment
+ Conffile: ve
+ Example: rbsmirrorsrv debian = http://mirrors1.kernel.org/
+
 =item B<rbsopt>
 
  Nature: Optional
@@ -618,7 +642,7 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
 
  Nature: Mandatory
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: list of coma separated OS (under the form of os-ver-arch). The corresponding machines running these distributions are given in the rmpool parameter.
+ Value: list of comma separated OS (under the form of os-ver-arch). The corresponding machines running these distributions are given in the rmpool parameter.
  Conffile: rm
  Example: rmlist default = mandriva-2010.2-i386,fedora-14-i386,rhel-6-i386,rhel-5-i386,pensuse-11.3-i386,sles-11-i386,gentoo-nover-i386,debian-5.0-i386,ubuntu-10.10-i386,solaris-10-i386,mandriva-2010.2-x86_64,fedora-14-x86_64,rhel-6-x86_64,rhel-5-x86_64,opensuse-11.3-x86_64,sles-11-x86_64,gentoo-nover-x86_64,debian-5.0-x86_64,ubuntu-10.10-x86_64,solaris-10-x86_64,hp-ux-11.3-ia64,rhel-5-ia64
 
@@ -704,17 +728,17 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
 
 =item B<sshlogin>
 
- Nature: Mandatory
+ Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: login to use when connecting to the repository server B<sshhost> for package delivery.
+ Value: login to use when connecting to the repository server B<sshhost> for package delivery; default `whoami`
  Conffile: project
  Example: sshlogin mondorescue = mylogin
 
 =item B<sshport>
 
- Nature: Mandatory
+ Nature: Optional
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: port to use when connecting to the repository server B<sshhost> for package delivery.
+ Value: port to use when connecting to the repository server B<sshhost> for package delivery; default 22
  Conffile: project
  Example: sshport mondorescue = 22
 
@@ -742,7 +766,7 @@ Not used yet.
 
  Nature: Mandatory
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: list of coma separated OS (under the form of os-ver-arch).
+ Value: list of comma separated OS (under the form of os-ver-arch).
  Conffile: ve
  Example: velist default = centos-4-i386,centos-5-i386,centos-4-x86_64,centos-5-x86_64,debian-5.0-i386,debian-5.0-x86_64,lsb-4.0.1-i386,lsb-4.0.1-x86_64
 
@@ -838,7 +862,7 @@ Not used yet.
 
  Nature: Mandatory
  Key: project (as defined in the -p option or PBPROJ environment variable)
- Value: list of coma separated OS (under the form of os-ver-arch).
+ Value: list of comma separated OS (under the form of os-ver-arch).
  Conffile: vm
  Example: vmlist default = asianux-2-i386,asianux-3-i386,mandrake-10.1-i386,mandrake-10.2-i386,mandriva-2006.0-i386,mandriva-2007.0-i386,mandriva-2007.1-i386,mandriva-2008.0-i386,mandriva-2008.1-i386,mandriva-2009.0-i386,mandriva-2009.1-i386,mandriva-2010.0-i386,redhat-7.3-i386,redhat-9-i386,fedora-4-i386,fedora-5-i386,fedora-6-i386,fedora-7-i386,fedora-8-i386,fedora-9-i386,fedora-10-i386,fedora-11-i386,fedora-12-i386,rhel-2.1-i386,rhel-3-i386,rhel-4-i386,rhel-5-i386,suse-10.0-i386,suse-10.1-i386,suse-10.2-i386,opensuse-10.3-i386,opensuse-11.0-i386,opensuse-11.1-i386,opensuse-11.2-i386,sles-9-i386,sles-10-i386,sles-11-i386,gentoo-nover-i386,debian-3.1-i386,debian-4.0-i386,debian-5.0-i386,ubuntu-6.06-i386,ubuntu-7.04-i386,ubuntu-7.10-i386,ubuntu-8.04-i386,ubuntu-8.10-i386,ubuntu-9.04-i386,ubuntu-9.10-i386,solaris-10-i386,asianux-2-x86_64,asianux-3-x86_64,mandriva-2007.0-x86_64,mandriva-2007.1-x86_64,mandriva-2008.0-x86_64,mandriva-2008.1-x86_64,mandriva-2009.0-x86_64,mandriva-2009.1-x86_64,mandriva-2010.0-x86_64,fedora-6-x86_64,fedora-7-x86_64,fedora-8-x86_64,fedora-9-x86_64,fedora-10-x86_64,fedora-11-x86_64,fedora-12-x86_64,rhel-3-x86_64,rhel-4-x86_64,rhel-5-x86_64,suse-10.2-x86_64,opensuse-10.3-x86_64,opensuse-11.0-x86_64,opensuse-11.1-x86_64,opensuse-11.2-x86_64,sles-10-x86_64,sles-11-x86_64,gentoo-nover-x86_64,debian-4.0-x86_64,debian-5.0-x86_64,ubuntu-7.04-x86_64,ubuntu-7.10-x86_64,ubuntu-8.04-x86_64,ubuntu-8.10-x86_64,ubuntu-9.04-x86_64,ubuntu-9.10-x86_64,solaris-10-x86_64
 

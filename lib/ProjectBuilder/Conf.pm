@@ -10,6 +10,7 @@
 package ProjectBuilder::Conf;
 
 use strict;
+use Carp 'confess';
 use Data::Dumper;
 use ProjectBuilder::Base;
 use ProjectBuilder::Version;
@@ -322,7 +323,7 @@ if (not defined $ENV{'PBPROJ'}) {
 die "No params found for $proj" if (not @return);
 
 foreach my $i (0..$#param) {
-	die "No $param[$i] defined for $proj" if (not defined $return[$i]);
+	confess "No $param[$i] defined for $proj" if (not defined $return[$i]);
 }
 return(@return);
 }

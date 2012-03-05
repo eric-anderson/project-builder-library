@@ -14,6 +14,7 @@ use ProjectBuilder::Base;
 use ProjectBuilder::Conf;
 use File::Basename;
 use File::Copy;
+use File::Compare;
 
 # Global vars
 # Inherit from the "Exporter" module which handles exporting functions.
@@ -467,7 +468,7 @@ foreach my $i (split(/,/,$param)) {
 
 	# The repo file can be local or remote. download or copy at the right place
 	if (($scheme eq "ftp") || ($scheme eq "http")) {
-		pb_system("wget -O $ENV{'PBTMP'}/$bn $i","Donwloading additional repository file $i");
+		pb_system("wget -O $ENV{'PBTMP'}/$bn $i","Downloading additional repository file $i");
 	} else {
 		copy($i,$ENV{'PBTMP'}/$bn);
 	}
@@ -491,7 +492,16 @@ foreach my $i (split(/,/,$param)) {
 			pb_log(0,"Unable to deal with repository file $i on rpm distro ! Please report to dev team\n");
 		}
 	} elsif ($pbos->{'type'} eq "deb") {
-		if (($bn =~ /\.sources.list$/) && (not -f "/etc/apt/sources.list.d/$bn")) {
+		if ($bn =~ /\.sources.list$/) {
+                        my $dest = "/etc/apt/sources.list.d/$bn";
+                        if (-f $dest && -s $dest == 0) {
+                                pb_log(1, "Overwriting empty file $dest");
+                        } elsif (-f $dest && compare("$ENV{PBTMP}/$bn", $dest) == 0) {
+                                pb_log(1, "Overwriting identical file $dest");
+                        } else {
+                                pb_log(0, "ERROR: destination file $dest exists and is different than source $ENV{PBTMP}/$bn\n");
+                                return;
+                        }
 			pb_system("sudo mv $ENV{'PBTMP'}/$bn /etc/apt/sources.list.d","Adding apt repository");
 			pb_system("sudo apt-get update","Updating apt repository");
 		} else {
