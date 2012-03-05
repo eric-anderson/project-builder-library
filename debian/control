@@ -1,0 +1,24 @@
+Source: libprojectbuilder-perl
+Section: perl
+Priority: optional
+Maintainer: Bruno Cornec <bruno@project-builder.org>
+Build-Depends: debhelper (>= 4.2.20), fakeroot, dpkg-dev (>= 1.13)
+Standards-Version: 3.8.0
+Vcs-Svn: svn://svn.project-builder.org/mondo/svn/pb/0.11.3/ProjectBuilder
+Vcs-Browser: http://trac.project-builder.org/browser/0.11.3/ProjectBuilder
+Homepage: http://trac.project-builder.org
+
+Package: libprojectbuilder-perl
+Architecture: all
+Section: perl
+Priority: optional
+Depends: perl (>= 5.8.4)
+Recommends: 
+Suggests: 
+Description: Perl module providing multi-OSes (Linux/Solaris/...) Continuous Packaging
+ ProjectBuilder is a perl module providing set of functions
+ to help develop packages for projects and deal
+ with different Operating systems (Linux distributions, Solaris, ...).
+ It implements a Continuous Packaging approach.
+ .
+
