@@ -55,6 +55,9 @@ sub postamble {
 	my $mandir = $mandir || "/usr/local/share/man";
 
         my $text = <<"EOF";
+all ::
+	perl -pi -e \"s~CCCC~$etcdir~\" blib/lib/ProjectBuilder/Distribution.pm
+
 install ::
 	mkdir -p \$(DESTDIR)$etcdir
 	chmod 755 \$(DESTDIR)$etcdir
@@ -62,7 +65,6 @@ install ::
 	# Produce the man page for pb.conf
 	mkdir -p \$(DESTDIR)$mandir/man5
 	pod2man --section=5 etc/pb.conf.pod > \$(DESTDIR)$mandir/man5/pb.conf.5
-	perl -pi -e \"s~CCCC~$etcdir~\" \$(DESTINSTALLPRIVLIB)/ProjectBuilder/Distribution.pm
 EOF
 
 	return($text);

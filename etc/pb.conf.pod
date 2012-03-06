@@ -403,7 +403,7 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
 
  Nature: Optional (Mandatory if pbinstalltype is pkg)
  Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch).
- Value: comma separated list of packages or repo file to be added to the VE|VM to support package installation of pb
+ Value: comma separated list of packages, yum repo, or apt sources.list files to be added to the VE|VM to support package installation of pb.
  Conffile: pb
  Example: osrepo rpm = ftp://ftp.project-builder.org/$ddir/$dver/pb.repo
 

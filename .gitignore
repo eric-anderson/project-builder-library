@@ -1,0 +1,9 @@
+Makefile
+Makefile.old
+blib/
+build-stamp
+debian/files
+debian/libprojectbuilder-perl.debhelper.log
+debian/libprojectbuilder-perl.substvars
+debian/libprojectbuilder-perl/
+pm_to_blib
