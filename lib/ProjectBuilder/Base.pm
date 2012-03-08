@@ -135,6 +135,7 @@ Needs pb_log support, so pb_log_init should have benn called before.
 The first parameter is the shell command to call. this commend should NOT use redirections.
 The second parameter is the message to print on screen. If none is given, then the command is printed.
 The third parameter print the result of the command after correct execution if value is verbose. If value is noredir, it avoids redirecting outputs (e.g. for vi).
+The fourth parameter determines whether failure of the command is ok even if $Global::pb_stop_on_error is set, because the caller will be handling the error.
 This function returns the result the return value of the system command.
 
 If no error reported, it prints OK on the screen, just after the message. Else it prints the errors generated.
@@ -146,6 +147,7 @@ sub pb_system {
 my $cmd=shift;
 my $cmt=shift || $cmd;
 my $verbose=shift || undef;
+my $failure_ok = shift || 0;
 my $redir = "";
 
 pb_log(0,"$cmt... ") if ((! defined $verbose) || ($verbose ne "quiet"));
@@ -171,8 +173,8 @@ $error = "child ($cmd) died with signal ".($res & 127).", ".($res & 128) ? 'with
 if (defined $error) {
 	pb_log(0, $error) if ((! defined $verbose) || ($verbose ne "quiet")) || $Global::pb_stop_on_error;
 	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet") || $Global::pb_stop_on_error));
-        if ($Global::pb_stop_on_error) {
-                cluck "error running command ($cmd) with cwd=$cwd";
+        if ($Global::pb_stop_on_error && ! $failure_ok) {
+                cluck "error running command ($cmd) with cwd=$cwd, pid=$$";
                 exit(1);
         }
 } else {

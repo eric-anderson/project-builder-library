@@ -355,6 +355,14 @@ while (<DESC>) {
 	pb_log(4,"read: $_\n");
 	next if (! /$regexp/);
 	chomp();
+
+        my $nextline;
+        if ($pbos->{type} eq 'deb') {
+                while ($nextline = <DESC>) {
+                        last unless $nextline =~ /^\s+(.+)$/o;
+                        $_ .= $1;
+                }
+        }
 	# What we found with the regexp is the list of deps.
 	pb_log(2,"found deps: $_\n");
 	s/$regexp/$1/i;
@@ -370,6 +378,10 @@ while (<DESC>) {
 	s/\s*$//;
 	s/\s+/ /g;
 	$deps .= " ".$_;
+        if (defined $nextline) {
+                $_ = $nextline;
+                redo;
+        }
 }
 close(DESC);
 $/ = $oldsep;
@@ -396,10 +408,10 @@ my $deps2 = "";
 foreach my $p (split(/\s+/,$deps)) {
         next if $p =~ /^\s*$/o;
 	if ($pbos->{'type'} eq  "rpm") {
-		my $res = pb_system("rpm -q --whatprovides --quiet $p","","quiet");
+		my $res = pb_system("rpm -q --whatprovides --quiet $p","","quiet", 1);
 		next if ($res eq 0);
 	} elsif ($pbos->{'type'} eq "deb") {
-		my $res = pb_system("dpkg -L $p","","quiet");
+		my $res = pb_system("dpkg -L $p","","quiet", 1);
 		next if ($res eq 0);
 	} elsif ($pbos->{'type'} eq "ebuild") {
 	} else {
@@ -494,12 +506,19 @@ foreach my $i (split(/,/,$param)) {
 	} elsif ($pbos->{'type'} eq "deb") {
 		if ($bn =~ /\.sources.list$/) {
                         my $dest = "/etc/apt/sources.list.d/$bn";
-                        if (-f $dest && -s $dest == 0) {
+                        if (! -f $dest) {
+                                pb_log(1, "Installing new file $dest");
+                        } elsif (-f $dest && -s $dest == 0) {
                                 pb_log(1, "Overwriting empty file $dest");
                         } elsif (-f $dest && compare("$ENV{PBTMP}/$bn", $dest) == 0) {
                                 pb_log(1, "Overwriting identical file $dest");
                         } else {
                                 pb_log(0, "ERROR: destination file $dest exists and is different than source $ENV{PBTMP}/$bn\n");
+                                print "Dest...\n";
+                                system("cat $dest");
+                                print "New...\n";
+                                system("cat $ENV{PBTMP}/$bn");
+                                print "Returning...\n";
                                 return;
                         }
 			pb_system("sudo mv $ENV{'PBTMP'}/$bn /etc/apt/sources.list.d","Adding apt repository");
