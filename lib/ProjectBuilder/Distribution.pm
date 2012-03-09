@@ -8,6 +8,7 @@
 package ProjectBuilder::Distribution;
 
 use strict;
+use Carp 'confess';
 use Data::Dumper;
 use ProjectBuilder::Version;
 use ProjectBuilder::Base;
@@ -211,6 +212,8 @@ foreach $d (reverse keys %$ambiguous_rel_files) {
 		pb_log(2,"amb: ".Dumper($ptr)."\n");
 		$release = "unknown";
 		foreach my $dd (split(/,/,$ptr)) {
+                        # TODO-reviwer: unclear how this should be generalized.
+                        $tmp = '7.0' if $dd eq 'debian' && $tmp =~ m!wheezy/sid!;
 			pb_log(2,"check $dd\n");
 			# Try to check pattern
 			if (defined $distro_match->{$dd}) {
@@ -301,16 +304,28 @@ my $f = shift || undef;
 my $pbos = shift;
 my $deps = shift || undef;
 
+my ($ftp_proxy_map, $http_proxy_map) = pb_conf_get_if('ftp_proxy', 'http_proxy');
+my $ftp_proxy = pb_distro_get_param($pbos, $ftp_proxy_map);
+my $http_proxy = pb_distro_get_param($pbos, $http_proxy_map);
+
+# TODO-reviewer: ||= or =?  Former lets shell settings apply, latter makes config file win.
+$ENV{ftp_proxy} ||= $ftp_proxy;
+$ENV{http_proxy} ||= $http_proxy;
+
 # Protection
 return if (not defined $pbos->{'install'});
 
+# confess "ERIC '$ENV{http_proxy}' '$ftp_proxy' '$http_proxy'\n";
 # Get dependencies in the build file if not forced
 $deps = pb_distro_getdeps($f, $pbos) if (not defined $deps);
 pb_log(2,"deps: $deps\n");
 return if ((not defined $deps) || ($deps =~ /^\s*$/));
 # This may not be // proof. We should test for availability of repo and sleep if not
 my $cmd = "$pbos->{'install'} $deps";
-pb_system($cmd, "Installing dependencies ($cmd)");
+my $ret = pb_system($cmd, "Installing dependencies ($cmd)", undef, 1);
+if ($ret != 0) {
+        pb_system($cmd, "Re-trying installing dependencies ($cmd)");
+}
 }
 
 =item B<pb_distro_getdeps>

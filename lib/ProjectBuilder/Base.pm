@@ -13,7 +13,7 @@ package ProjectBuilder::Base;
 
 use strict;
 use lib qw (lib);
-use Carp 'cluck';
+use Carp qw/confess cluck/;
 use Cwd;
 use File::Path;
 use File::Temp qw(tempdir);
@@ -108,7 +108,8 @@ Based on File::Path mkpath.
 
 sub pb_mkdir_p {
 my @dir = @_;
-my $ret = mkpath(@dir, 0, 0755);
+my $ret = eval { mkpath(@dir, 0, 0755) };
+confess "pb_mkdir_p @dir failed in " . getcwd() . ": $@" if $@;
 return(0);
 }
 
