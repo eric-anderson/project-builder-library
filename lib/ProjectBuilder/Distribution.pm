@@ -315,7 +315,6 @@ $ENV{http_proxy} ||= $http_proxy;
 # Protection
 return if (not defined $pbos->{'install'});
 
-# confess "ERIC '$ENV{http_proxy}' '$ftp_proxy' '$http_proxy'\n";
 # Get dependencies in the build file if not forced
 $deps = pb_distro_getdeps($f, $pbos) if (not defined $deps);
 pb_log(2,"deps: $deps\n");
