@@ -16,6 +16,7 @@ use ProjectBuilder::Conf;
 use File::Basename;
 use File::Copy;
 use File::Compare;
+use FileHandle;
 
 # Global vars
 # Inherit from the "Exporter" module which handles exporting functions.
@@ -304,11 +305,14 @@ my $f = shift || undef;
 my $pbos = shift;
 my $deps = shift || undef;
 
-my ($ftp_proxy_map, $http_proxy_map) = pb_conf_get_if('ftp_proxy', 'http_proxy');
+my ($ftp_proxy_map, $http_proxy_map, $hook_map) = pb_conf_get_if('ftp_proxy', 'http_proxy', 'install_deps_hook');
 my $ftp_proxy = pb_distro_get_param($pbos, $ftp_proxy_map);
 my $http_proxy = pb_distro_get_param($pbos, $http_proxy_map);
+my $hook = pb_distro_get_param($pbos, $hook_map);
 
 # TODO-reviewer: ||= or =?  Former lets shell settings apply, latter makes config file win.
+# Note that during the setupve step we do not have the config file available so = would be bad, but
+# = if defined would be ok.
 $ENV{ftp_proxy} ||= $ftp_proxy;
 $ENV{http_proxy} ||= $http_proxy;
 
@@ -317,6 +321,11 @@ return if (not defined $pbos->{'install'});
 
 # Get dependencies in the build file if not forced
 $deps = pb_distro_getdeps($f, $pbos) if (not defined $deps);
+if (defined $hook && $hook ne '') {
+        pb_system($hook, "Running install_deps_hook '$hook'");
+} else {
+        pb_log(1, "No install_deps_hook defined.\n");
+}
 pb_log(2,"deps: $deps\n");
 return if ((not defined $deps) || ($deps =~ /^\s*$/));
 # This may not be // proof. We should test for availability of repo and sleep if not
@@ -425,8 +434,12 @@ foreach my $p (split(/\s+/,$deps)) {
 		my $res = pb_system("rpm -q --whatprovides --quiet $p","","quiet", 1);
 		next if ($res eq 0);
 	} elsif ($pbos->{'type'} eq "deb") {
-		my $res = pb_system("dpkg -L $p","","quiet", 1);
-		next if ($res eq 0);
+                my $fh = new FileHandle "dpkg -l $p |" or die "Unable to run dpkg -l $p: $!";
+                my $ok = 0;
+                while (<$fh>) {
+                        $ok = 1 if /^ii\s+$p/;
+                }
+                next if $ok;
 	} elsif ($pbos->{'type'} eq "ebuild") {
 	} else {
 		# Not reached

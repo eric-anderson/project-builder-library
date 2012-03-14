@@ -308,7 +308,7 @@ return if ($action =~ /^clean$/);
 # return values in that case are useless
 #
 
-if (($action =~ /^cms2/) || ($action =~ /^sbx2/) || ($action =~ /^newver$/) || ($action =~ /pbinit/) || ($action =~ /^newproj$/) || ($action =~ /^announce/) || ($action =~ /^checkssh/) || ($action =~ /^cleanssh/)) {
+if (($action =~ /^cms2/) || ($action =~ /^sbx2/) || ($action =~ /^newver$/) || ($action =~ /pbinit/) || ($action =~ /^newproj$/) || ($action =~ /^announce/) || ($action =~ /^checkssh/) || ($action =~ /^cleanssh/) || ($action =~ /^build2/)) {
 
 	#
 	# Check pbconf cms compliance
