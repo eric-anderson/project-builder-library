@@ -22,6 +22,14 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
 =over 4
 
+=item B<addrepo>
+
+ Nature: Optional
+Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: comma separated list of URLs that point to repository files, or packages to install. The values may not include subsitutions.
+ Conffile: project
+ Example: addrepo centos-5-x86_64 = http://localhost/extras.repo,http://mirror.centos.org/centos/5.8/extras/x86_64/RPMS/chrpath-0.13-3.el5.centos.x86_64.rpm
+
 =item B<checkexclude>
 
  Nature: Optional
@@ -112,27 +120,27 @@ Each value is detailed below giving the nature of its use (Mandatory or Optional
 
 =item B<ftp_proxy>
 
-Nature: Optional
-Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
-Value: string indicating the proxy to use
-Conffile: TODO-reviewer: ?
-Example: ftp_proxy default = http://example.com:3128/
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: string indicating the proxy to use
+ Conffile: TODO-reviewer: ?
+ Example: ftp_proxy default = http://example.com:3128/
 
 =item B<http_proxy>
 
-Nature: Optional
-Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
-Value: string indicating the proxy to use
-Conffile: TODO-reviewer: ?
-Example: http_proxy default = http://example.com:3128/
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: string indicating the proxy to use
+ Conffile: TODO-reviewer: ?
+ Example: http_proxy default = http://example.com:3128/
 
 =item B<install_deps_hook>
 
-Nature: Optional
-Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
-Value: string indicating the command to execute before trying to install package dependencies.
-Conffile: TODO-reviewer: ?
-Example: install_deps_hook ubuntu = sudo dpkg-divert --local --rename --add /sbin/initctl; sudo ln -sf /bin/true /sbin/initctl
+ Nature: Optional
+ Key: OS (could be from the most generic up to the most specific from ostype, osfamily, os, os-ver, os-ver-arch). The family name is generaly used here.
+ Value: string indicating the command to execute before trying to install package dependencies.
+ Conffile: TODO-reviewer: ?
+ Example: install_deps_hook ubuntu = sudo dpkg-divert --local --rename --add /sbin/initctl; sudo ln -sf /bin/true /sbin/initctl
 
 =item B<logcmd>
 
@@ -1013,6 +1021,13 @@ Not used yet.
 =back
 
 =head1 OTHER PARAMETERS
+
+=over 4
+
 =item B<pb_URL>
+
 =item B<pb_directory_desc>
+
 =item B<pb_environment_variables>
+
+=back

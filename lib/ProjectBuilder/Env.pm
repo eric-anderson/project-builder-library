@@ -606,7 +606,11 @@ filter PBPROJ = \$pb->{'proj'}
 filter PBPACKAGER = \$pb->{'packager'}
 
 # PBDESC contains the description of the package
-#filter PBDESC = Bla-Bla
+#filter PBDESC = Bla-Bla                                                \
+#with a trailing \, the variable can be multi-line.                     \
+#only the trailing \'s will be removed, the leading spaces,             \
+#  trailing spaces, and newlines will remain except on the              \
+#  last line.  You can use transform e.g. in rpm.pbf to adjust spaces
 
 # PBSUMMARY contains a short single line description of the package
 #filter PBSUMMARY = Bla
@@ -670,6 +674,10 @@ filter PBSUF = %{dist}
 # PBOBS is replaced by the Obsolete line
 #filter PBOBS =
 
+# transform a variable from the key on the right to the key on the left using the perl expression
+# after the input key name.  Useful for taking multi-line documentation and removing trailing spaces
+# or leading spaces.
+#transform PBDESC = PBDESC_raw s/\s+\n/\n/go;
 EOF
 			close(CONF);
 			foreach my $i (1..7) {

@@ -291,6 +291,19 @@ if (-r $lsbf) {
 }
 }
 
+sub internal_apply_conf_proxy ($) {
+my ($pbos) = @_;
+my ($ftp_proxy_map, $http_proxy_map) = pb_conf_get_if('ftp_proxy', 'http_proxy');
+my $ftp_proxy = pb_distro_get_param($pbos, $ftp_proxy_map);
+my $http_proxy = pb_distro_get_param($pbos, $http_proxy_map);
+
+# TODO-reviewer: ||= or =?  Former lets shell settings apply, latter makes config file win.
+# Note that during the setupve step we do not have the config file available so = would be bad, but
+# = if defined would be ok.
+$ENV{ftp_proxy} ||= $ftp_proxy;
+$ENV{http_proxy} ||= $http_proxy;
+}
+
 =item B<pb_distro_installdeps>
 
 This function install the dependencies required to build the package on a distro.
@@ -305,16 +318,9 @@ my $f = shift || undef;
 my $pbos = shift;
 my $deps = shift || undef;
 
-my ($ftp_proxy_map, $http_proxy_map, $hook_map) = pb_conf_get_if('ftp_proxy', 'http_proxy', 'install_deps_hook');
-my $ftp_proxy = pb_distro_get_param($pbos, $ftp_proxy_map);
-my $http_proxy = pb_distro_get_param($pbos, $http_proxy_map);
+internal_apply_conf_proxy($pbos);
+my ($hook_map) = pb_conf_get_if('install_deps_hook');
 my $hook = pb_distro_get_param($pbos, $hook_map);
-
-# TODO-reviewer: ||= or =?  Former lets shell settings apply, latter makes config file win.
-# Note that during the setupve step we do not have the config file available so = would be bad, but
-# = if defined would be ok.
-$ENV{ftp_proxy} ||= $ftp_proxy;
-$ENV{http_proxy} ||= $http_proxy;
 
 # Protection
 return if (not defined $pbos->{'install'});
@@ -326,6 +332,7 @@ if (defined $hook && $hook ne '') {
 } else {
         pb_log(1, "No install_deps_hook defined.\n");
 }
+pb_log(1, "ftp_proxy=$ENV{ftp_proxy} http_proxy=$ENV{http_proxy}\n");
 pb_log(2,"deps: $deps\n");
 return if ((not defined $deps) || ($deps =~ /^\s*$/));
 # This may not be // proof. We should test for availability of repo and sleep if not
@@ -334,6 +341,8 @@ my $ret = pb_system($cmd, "Installing dependencies ($cmd)", undef, 1);
 if ($ret != 0) {
         pb_system($cmd, "Re-trying installing dependencies ($cmd)");
 }
+$deps = pb_distro_getdeps($f, $pbos);
+die "Some dependencies did not install ($deps)" if defined $deps && $deps =~ /\S/;
 }
 
 =item B<pb_distro_getdeps>
@@ -499,6 +508,8 @@ return if (not defined $addrepo);
 my $param = pb_distro_get_param($pbos,$addrepo);
 return if ($param eq "");
 
+internal_apply_conf_proxy($pbos);
+
 # Loop on the list of additional repo
 foreach my $i (split(/,/,$param)) {
 
@@ -517,7 +528,7 @@ foreach my $i (split(/,/,$param)) {
 		if ($bn =~ /\.rpm$/) {
 			my $pn = $bn;
 			$pn =~ s/\.rpm//;
-			if (pb_system("rpm -q --quiet $pn","","quiet") != 0) {
+			if (pb_system("rpm -q --quiet $pn","","quiet", 1) != 0) {
 				pb_system("sudo rpm -Uvh $ENV{'PBTMP'}/$bn","Adding package to setup repository");
 			}
 		} elsif ($bn =~ /\.repo$/) {

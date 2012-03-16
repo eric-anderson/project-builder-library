@@ -104,6 +104,7 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 	
 			# Which tool is used
 			my $verpmstyle = $verpmtype->{$ENV{'PBPROJ'}};
+                        die "No verpmtype defined (usually in ~/.pbrc) for $ENV{PBPROJ}" unless defined $verpmstyle;
 	
 			# Get potential rbs option
 			my $rbsopt = "";
@@ -164,7 +165,7 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 					$addpkgs = "-a $postparam";
 				}
 				my $command = pb_check_req("rpmbootstrap",0);
-				pb_system("$sudocmd $command $rbsopt $postinstall $addpkgs $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'} $rbsverb","Creating the rpmbootstrap VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
+				pb_system("$sudocmd $command $rbsopt $postinstall $addpkgs $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'} $rbsverb $root/$pbos->{'name'}/$pbos->{'version'}/$pbos->{'arch'}","Creating the rpmbootstrap VE for $pbos->{'name'}-$pbos->{'version'} ($pbos->{'arch'})", "verbose");
 			} elsif ($verpmstyle eq "mock") {
 				my ($rbsconf) = pb_conf_get("rbsconf");
 				my $command = pb_check_req("mock",0);
