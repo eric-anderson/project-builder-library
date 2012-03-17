@@ -172,11 +172,10 @@ $error = "failed to execute ($cmd) in $cwd: $!\n" if $res == -1;
 $error = "child ($cmd) died with signal ".($res & 127).", ".($res & 128) ? 'with' : 'without'." coredump\n" if $res & 127;
 
 if (defined $error) {
-	pb_log(0, $error) if ((! defined $verbose) || ($verbose ne "quiet")) || $Global::pb_stop_on_error;
+	pb_log(0, $error) if ((! defined $verbose) || ($verbose ne "quiet")) || ($Global::pb_stop_on_error && ! $failure_ok);
 	pb_display_file("$ENV{'PBTMP'}/system.$$.log") if ((-f "$ENV{'PBTMP'}/system.$$.log") and ((! defined $verbose) || ($verbose ne "quiet") || $Global::pb_stop_on_error));
         if ($Global::pb_stop_on_error && ! $failure_ok) {
-                cluck "error running command ($cmd) with cwd=$cwd, pid=$$";
-                exit(1);
+                confess "($$)error running command ($cmd) with cwd=$cwd, pid=$$";
         }
 } else {
 	pb_log(0,"OK\n") if ((! defined $verbose) || ($verbose ne "quiet"));

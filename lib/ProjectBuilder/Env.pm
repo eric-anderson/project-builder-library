@@ -677,7 +677,7 @@ filter PBSUF = %{dist}
 # transform a variable from the key on the right to the key on the left using the perl expression
 # after the input key name.  Useful for taking multi-line documentation and removing trailing spaces
 # or leading spaces.
-#transform PBDESC = PBDESC_raw s/\s+\n/\n/go;
+#transform PBDESC = PBDESC_raw s/\\s+\\n/\\n/go;
 EOF
 			close(CONF);
 			foreach my $i (1..7) {
