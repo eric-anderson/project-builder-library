@@ -318,12 +318,11 @@ my $f = shift || undef;
 my $pbos = shift;
 my $deps = shift || undef;
 
+die "Missing install command for $pbos->{name}-$pbos->{version}-$pbos->{arch}"
+       unless defined $pbos->{install} && $pbos->{install} =~ /\w/;
 internal_apply_conf_proxy($pbos);
 my ($hook_map) = pb_conf_get_if('install_deps_hook');
 my $hook = pb_distro_get_param($pbos, $hook_map);
-
-# Protection
-return if (not defined $pbos->{'install'});
 
 # Get dependencies in the build file if not forced
 $deps = pb_distro_getdeps($f, $pbos) if (not defined $deps);

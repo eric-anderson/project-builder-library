@@ -94,6 +94,9 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 	my $sudocmd="";
 	$sudocmd ="sudo " if ($EFFECTIVE_USER_ID != 0);
 
+        my $host_os = pb_distro_get_context();
+        $sudocmd = "/usr/bin/linux32 $sudocmd"
+            if $pbos->{arch} eq 'i386' && $host_os->{arch} eq 'x86_64';
         my $root = pb_path_expand($vepath->{$ENV{PBPROJ}});
 	if (((defined $verebuild) && ($verebuild->{$ENV{'PBPROJ'}} =~ /true/i)) || ($pbforce == 1)) {
 		my ($verpmtype,$vedebtype) = pb_conf_get("verpmtype","vedebtype");
