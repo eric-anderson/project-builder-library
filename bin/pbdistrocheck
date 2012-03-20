@@ -8,6 +8,7 @@
 # Provided under the GPL v2
 
 use strict 'vars';
+use lib '/usr/share/perl5'; # see pb for why
 use Getopt::Long qw(:config auto_abbrev no_ignore_case);
 use Data::Dumper;
 use lib qw (lib);

@@ -531,8 +531,17 @@ foreach my $i (split(/,/,$param)) {
 				pb_system("sudo rpm -Uvh $ENV{'PBTMP'}/$bn","Adding package to setup repository");
 			}
 		} elsif ($bn =~ /\.repo$/) {
-			# Yum repo
-			pb_system("sudo mv $ENV{'PBTMP'}/$bn /etc/yum.repos.d","Adding yum repository") if (not -f "/etc/yum.repos.d/$bn");
+                        if ($pbos->{install} =~ /\byum\b/) {
+                                die "Missing directory /etc/yum.repos.d ($pbos->{install})" unless -d "/etc/yum.repos.d";
+                                # Yum repo
+                                pb_system("sudo mv $ENV{'PBTMP'}/$bn /etc/yum.repos.d/$bn","Adding yum repository") if (not -f "/etc/yum.repos.d/$bn");
+                        } elsif ($pbos->{install} =~ /\bzypper\b/) {
+                                die "Missing directory /etc/zypp/repos.d" unless -d "/etc/zypp/repos.d";
+                                # Zypper repo
+                                pb_system("sudo mv $ENV{'PBTMP'}/$bn /etc/zypp/repos.d/$bn","Adding zypper repository") if (not -f "/etc/zypp/repos.d/$bn");
+                        } else {
+                                die "Unknown location for repository file for '$pbos->{install}' command";
+                        }
 		} elsif ($bn =~ /\.addmedia/) {
 			# URPMI repo
 			# We should test that it's not already a urpmi repo
