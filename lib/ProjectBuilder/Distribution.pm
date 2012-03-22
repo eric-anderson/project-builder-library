@@ -436,11 +436,13 @@ my $deps = shift || undef;
 return("") if ((not defined $deps) || ($deps =~ /^\s*$/));
 my $deps2 = "";
 # Avoid to install what is already there
+delete $ENV{COLUMNS};
 foreach my $p (split(/\s+/,$deps)) {
         next if $p =~ /^\s*$/o;
 	if ($pbos->{'type'} eq  "rpm") {
 		my $res = pb_system("rpm -q --whatprovides --quiet $p","","quiet", 1);
 		next if ($res eq 0);
+                pb_log(1, "missing dependency $p\n");
 	} elsif ($pbos->{'type'} eq "deb") {
                 my $fh = new FileHandle "dpkg -l $p |" or die "Unable to run dpkg -l $p: $!";
                 my $ok = 0;
@@ -448,6 +450,7 @@ foreach my $p (split(/\s+/,$deps)) {
                         $ok = 1 if /^ii\s+$p/;
                 }
                 next if $ok;
+                pb_log(1, "missing dependency $p\n");
 	} elsif ($pbos->{'type'} eq "ebuild") {
 	} else {
 		# Not reached
@@ -553,11 +556,11 @@ foreach my $i (split(/,/,$param)) {
 		if ($bn =~ /\.sources.list$/) {
                         my $dest = "/etc/apt/sources.list.d/$bn";
                         if (! -f $dest) {
-                                pb_log(1, "Installing new file $dest");
+                                pb_log(1, "Installing new file $dest\n");
                         } elsif (-f $dest && -s $dest == 0) {
-                                pb_log(1, "Overwriting empty file $dest");
+                                pb_log(1, "Overwriting empty file $dest\n");
                         } elsif (-f $dest && compare("$ENV{PBTMP}/$bn", $dest) == 0) {
-                                pb_log(1, "Overwriting identical file $dest");
+                                pb_log(1, "Overwriting identical file $dest\n");
                         } else {
                                 pb_log(0, "ERROR: destination file $dest exists and is different than source $ENV{PBTMP}/$bn\n");
                                 print "Dest...\n";
