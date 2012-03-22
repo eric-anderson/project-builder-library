@@ -160,8 +160,20 @@ my %h;
 open(CONF,$conffile) || die "Unable to open $conffile";
 while(<CONF>) {
 	if (/^\s*([A-z0-9-_.]+)\s+([[A-z0-9-_.]+)\s*=\s*(.+)$/) {
-		pb_log(3,"DEBUG: 1:$1 2:$2 3:$3\n");
-		$h{$1}{$2}=$3;
+                my ($key, $package, $value) = ($1,$2,$3);
+                while ($value =~ s/\\\s*$//o) {
+                       # TODO-reviewer: not clear what whitespace semantics can be.  I chose
+                       # collapse to single space as that roughly emulates what the shell does.
+                       $value =~ s/\s+$//o;
+                       $_ = <CONF>;
+                       die "Still processing continuations for $key $package at EOF" unless defined $_;
+                       s/\s+$//o;
+                       s/^\s+//o;
+                       s/[\r\n]//go;
+                       $value .= " $_";
+                }
+		pb_log(3,"DEBUG: 1:$key 2:$package 3:$value\n");
+		$h{$key}{$package}=$value;
 	}
 }
 close(CONF);

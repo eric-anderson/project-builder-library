@@ -28,7 +28,7 @@ use Exporter;
 # any code which uses this module.
  
 our @ISA = qw(Exporter);
-our @EXPORT = qw(pb_distro_conffile pb_distro_get pb_distro_getlsb pb_distro_installdeps pb_distro_getdeps pb_distro_only_deps_needed pb_distro_setuprepo pb_distro_setuposrepo pb_distro_get_param pb_distro_get_context);
+our @EXPORT = qw(pb_distro_conffile pb_distro_get pb_distro_getlsb pb_distro_installdeps pb_distro_getdeps pb_distro_only_deps_needed pb_distro_setuprepo pb_distro_setuposrepo pb_pbos_to_keylist pb_distro_get_param pb_distro_get_context);
 ($VERSION,$REVISION) = pb_version_init();
 
 =pod
@@ -579,6 +579,31 @@ foreach my $i (split(/,/,$param)) {
 return;
 }
 
+=item B<pb_pbos_to_keylist>
+
+Given a pbos object and the generic key, get the list of possible keys for looking up variable for
+filter names.  The list will be sorted most-specific to least specific.
+
+=cut
+
+sub pb_pbos_to_keylist ($$) {
+my ($pbos, $generic) = @_;
+foreach my $key (qw/name version arch family type os/) {
+    confess "missing pbos key $key" unless defined $pbos->{$key};
+}
+my @keylist = ("$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}", "$pbos->{'name'}-$pbos->{'version'}");
+if ($pbos->{version} =~ /^(\d+)\.(\d+)$/o) {
+        my ($major, $minor) = ($1, $2);
+        while ($minor > 0) {
+                --$minor;
+                push (@keylist, "$pbos->{name}-${major}.$minor");
+        }
+        push (@keylist, "$pbos->{name}-$major");
+}
+push (@keylist, $pbos->{name}, $pbos->{family}, $pbos->{type}, $pbos->{os}, $generic);
+return @keylist;
+}
+
 =item B<pb_distro_get_param>
 
 This function gets the parameter in the conf file from the most precise tuple up to default
@@ -588,30 +613,21 @@ This function gets the parameter in the conf file from the most precise tuple up
 sub pb_distro_get_param {
 
 my @param;
-my $param;
 my $pbos = shift;
 
+my @keylist = pb_pbos_to_keylist($pbos, 'default');
 pb_log(2,"DEBUG: pb_distro_get_param on $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'} for ".Dumper(@_)."\n");
-foreach my $opt (@_) {
-	if (defined $opt->{"$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}"}) {
-		$param = $opt->{"$pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'}"};
-	} elsif (defined $opt->{"$pbos->{'name'}-$pbos->{'version'}"}) {
-		$param = $opt->{"$pbos->{'name'}-$pbos->{'version'}"};
-	} elsif (defined $opt->{"$pbos->{'name'}"}) {
-		$param = $opt->{"$pbos->{'name'}"};
-	} elsif (defined $opt->{$pbos->{'family'}}) {
-		$param = $opt->{$pbos->{'family'}};
-	} elsif (defined $opt->{$pbos->{'type'}}) {
-		$param = $opt->{$pbos->{'type'}};
-	} elsif (defined $opt->{$pbos->{'os'}}) {
-		$param = $opt->{$pbos->{'os'}};
-	} elsif (defined $opt->{"default"}) {
-		$param = $opt->{"default"};
-	} else {
-		$param = "";
-	}
 
-	# Allow replacement of variables inside the parameter such as name, version, arch for rpmbootstrap 
+foreach my $opt (@_) {
+        my $param = '';
+        foreach my $key (@keylist) {
+                if (defined $opt->{$key}) {
+                        $param = $opt->{$key};
+                        last;
+                }
+        }
+
+	# Allow replacement of variables inside the parameter such as name, version, arch for rpmbootstrap
 	# but not shell variable which are backslashed
 	if ($param =~ /[^\\]\$/) {
 		pb_log(3,"Expanding variable on $param\n");
@@ -622,10 +638,10 @@ foreach my $opt (@_) {
 
 pb_log(2,"DEBUG: pb_distro_get_param on $pbos->{'name'}-$pbos->{'version'}-$pbos->{'arch'} returns ==".Dumper(@param)."==\n");
 
-# Return one param in scalar context, an array if not.
+# Return one param if user only asked for one lookup, an array if not.
 my $nb = @param;
 if ($nb eq 1) {
-	return($param);
+	return($param[0]);
 } else {
 	return(@param);
 }
