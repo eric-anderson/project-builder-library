@@ -463,6 +463,14 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
  Conffile: home|project
  Example: pbconfurl fossology = svn+ssh://user@svn.project-builder.org/mondo/svn/pb/projects/fossology/pbconf, cvs+ssh://:ext:user@linuxcoe.cvs.sourceforge.net:/cvsroot/linuxcoe/pbconf
 
+=item B<pbdebcomponent>
+
+ Nature: Optional
+ Key: project (as defined in the -p option or PBPROJ environment variable)
+ Value: The component in the debian/ubuntu repository, e.g. main for free software, non-free for non-free software, or contrib for free software that depends on non-free software; default = contrib; TODO-reviewer: shouldn't the default be main assuming open-source?
+ Conffile: project
+ Example: pbdebcomponent Lintel = main
+
 =item B<pbdefdir>
 
  Nature: Optional
