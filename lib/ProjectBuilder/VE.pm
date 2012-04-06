@@ -92,8 +92,18 @@ if (($vetype eq "chroot") || ($vetype eq "schroot")) {
 
 	# If we are already root (from pbmkbm e.g.) don't use sudo, just call the command
 	my $sudocmd="";
-	$sudocmd ="sudo " if ($EFFECTIVE_USER_ID != 0);
-
+        if ($EFFECTIVE_USER_ID != 0) {
+                $sudocmd ="sudo ";
+                foreach my $proxy (qw/http_proxy ftp_proxy/) {
+                        if (defined $ENV{$proxy}) {
+                                open(my $fh, "sudo sh -c 'echo \$$proxy' |") or die "can't run sudo sh?";
+                                $_ = <$fh>;
+                                chomp;
+                                die "sudo not passing through env var $proxy; '$ENV{$proxy}' != '$_'\nAdd line Defaults:`whoami` env_keep += \"$proxy\" to sudoers file?"
+                                        unless $_ eq $ENV{$proxy};
+                        }
+                }
+        }
         my $host_os = pb_distro_get_context();
         $sudocmd = "/usr/bin/linux32 $sudocmd"
             if $pbos->{arch} eq 'i386' && $host_os->{arch} eq 'x86_64';
