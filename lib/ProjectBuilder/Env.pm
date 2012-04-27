@@ -7,6 +7,7 @@
 # $Id$
 #
 # Copyright B. Cornec 2007
+# Eric Anderson's changes are (c) Copyright 2012 Hewlett Packard
 # Provided under the GPL v2
 
 package ProjectBuilder::Env;

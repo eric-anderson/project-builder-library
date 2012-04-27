@@ -2,6 +2,9 @@
 #
 # Creates common environment for distributions
 #
+# Eric Anderson's changes are (c) Copyright 2012 Hewlett Packard
+# TODO-reviwer: following was missing, I assume it's correct: Provided under the GPL v2
+#
 # $Id$
 #
 

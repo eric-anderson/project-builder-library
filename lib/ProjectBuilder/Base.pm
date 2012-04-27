@@ -4,6 +4,7 @@
 # which can be easily used by whatever perl project
 #
 # Copyright B. Cornec 2007-2008
+# Eric Anderson's changes are (c) Copyright 2012 Hewlett Packard
 # Provided under the GPL v2
 #
 # $Id$
