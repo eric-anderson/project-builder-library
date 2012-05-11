@@ -485,7 +485,7 @@ osrelexpr rhel = Red Hat (?:Enterprise Linux|Linux Advanced Server) .*release ([
  Key: project (as defined in the -p option or PBPROJ environment variable)
  Value: Whether the repository file should be generated specifying that gpg checking of the packages is on. Note that failures to sign packages is tolerated by default, which means that signatures can fail making the repository file generated not work.  The default is to require gpg checks.
  Conffile: project
- Example: pbdebcomponent Lintel = 0
+ Example: pbgpgcheck Lintel = 0
 
 =item B<pbinstalltype>
 
