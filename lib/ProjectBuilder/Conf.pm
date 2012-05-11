@@ -4,6 +4,9 @@
 # Conf files subroutines brought by the the Project-Builder project
 # which can be easily used by wahtever perl project
 #
+# Eric Anderson's changes are (c) Copyright 2012 Hewlett Packard
+# TODO-reviwer: following was missing, I assume it's correct: Provided under the GPL v2
+#
 # $Id$
 #
 

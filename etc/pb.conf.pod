@@ -1046,4 +1046,11 @@ Not used yet.
 
 =item B<pb_environment_variables>
 
+=head1 COPYRIGHT
+
+This file is licensed under the GNU GPL Version 2
+
+# TODO-reviewer: who else should have put copyrights in here?
+Eric Anderson's changes are (c) Copyright 2012 Hewlett Packard
+
 =back
